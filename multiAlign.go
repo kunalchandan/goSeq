@@ -42,7 +42,6 @@ func repr(b byte) string {
 	}
 }
 
-
 type Direction int
 
 const (
@@ -151,7 +150,9 @@ func drawMatricies(scoringMatrix [][]int, directionMatrix [][]int, seq1 []byte, 
 		}
 		fmt.Println("")
 	}
+}
 
+func alignedSeqsFromMatricies(scoringMatrix [][]int, directionMatrix [][]int, seq1 []byte, seq2 []byte) ([]byte, []byte, int, int) {
 	alignedLen := len(seq1)
 	if len(seq2) > alignedLen {
 		alignedLen = len(seq2)
@@ -198,6 +199,7 @@ func drawMatricies(scoringMatrix [][]int, directionMatrix [][]int, seq1 []byte, 
 	fmt.Println("Alignment Scores")
 	fmt.Println(alignmentScore1)
 	fmt.Println(alignmentScore2)
+	return reversedSeq1, reversedSeq2, alignmentScore1, alignmentScore2
 }
 
 func NWScore(seq1 []byte, seq2 []byte) int {

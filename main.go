@@ -13,6 +13,9 @@ func main() {
 
 	scoringMatrix, directionMatrix := GenNWMatrix(sequence1, sequence2)
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+
+	fmt.Println(alignSeq1, alignSeq2, score1, score2)
 
 	fmt.Println("-------------------------")
 	fmt.Println("-------------------------")
@@ -23,16 +26,22 @@ func main() {
 
 	scoringMatrix, directionMatrix = GenNWMatrix(sequence1, sequence2)
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+	alignSeq1, alignSeq2, score1, score2 = alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+
+	fmt.Println(alignSeq1, alignSeq2, score1, score2)
 
 	fmt.Println("-------------------------")
 	fmt.Println("-------------------------")
 	fmt.Println("-------------------------")
 
-	sequence1 = []byte{Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, }
-	sequence2 = []byte{Gu, Gu, Gu, Gu, Gu, Ad, Ad, Ad, Ad, Ad, Ad, Gu, Gu, Gu, Gu, Gu, Gu, }
+	sequence1 = []byte{Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu, Gu}
+	sequence2 = []byte{Gu, Gu, Gu, Gu, Gu, Ad, Ad, Ad, Ad, Ad, Ad, Gu, Gu, Gu, Gu, Gu, Gu}
 
 	scoringMatrix, directionMatrix = GenNWMatrix(sequence1, sequence2)
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+	alignSeq1, alignSeq2, score1, score2 = alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+
+	fmt.Println(alignSeq1, alignSeq2, score1, score2)
 	// fmt.Println(NWScore("banana", "the banna man"))
 	// generateData()
 	// readData()
