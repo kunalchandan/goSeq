@@ -13,7 +13,37 @@ func TestDrawMatricies_LargeMismatched(t *testing.T) {
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 
-	fmt.Println(string(alignSeq1), string(alignSeq2), score1, score2)
+	fmt.Println(string(alignSeq1))
+	fmt.Println(string(alignSeq2))
+	fmt.Println(score1)
+	fmt.Println(score2)
+}
+
+func TestDrawMatricies_MediumMismatched1(t *testing.T) {
+	sequence1 := []byte{Th, Th, Gu, Ad, Gu, Ad, Ad, Gu}
+	sequence2 := []byte{Th, Th, Th, Gu, Gu, Th, Gu, Gu, Ad, Ad, Cy}
+
+	scoringMatrix, directionMatrix := GenNWMatrix(sequence1, sequence2)
+	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+
+	fmt.Println(string(alignSeq1))
+	fmt.Println(string(alignSeq2))
+	fmt.Println(score1)
+	fmt.Println(score2)
+}
+func TestDrawMatricies_MediumMismatched2(t *testing.T) {
+	sequence1 := []byte{Th, Th, Th, Gu, Gu, Th, Gu, Gu, Ad, Ad, Cy}
+	sequence2 := []byte{Th, Th, Gu, Ad, Gu, Ad, Ad, Gu}
+
+	scoringMatrix, directionMatrix := GenNWMatrix(sequence1, sequence2)
+	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
+
+	fmt.Println(string(alignSeq1))
+	fmt.Println(string(alignSeq2))
+	fmt.Println(score1)
+	fmt.Println(score2)
 }
 
 func TestDrawMatricies_Medium(t *testing.T) {
@@ -24,7 +54,10 @@ func TestDrawMatricies_Medium(t *testing.T) {
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 
-	fmt.Println(string(alignSeq1), string(alignSeq2), score1, score2)
+	fmt.Println(string(alignSeq1))
+	fmt.Println(string(alignSeq2))
+	fmt.Println(score1)
+	fmt.Println(score2)
 }
 
 func TestDrawMatricies_Small(t *testing.T) {
@@ -35,5 +68,8 @@ func TestDrawMatricies_Small(t *testing.T) {
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 
-	fmt.Println(string(alignSeq1), string(alignSeq2), score1, score2)
+	fmt.Println(string(alignSeq1))
+	fmt.Println(string(alignSeq2))
+	fmt.Println(score1)
+	fmt.Println(score2)
 }
