@@ -3,11 +3,13 @@ package main
 
 import (
 	"fmt"
+	"hash/fnv"
 	"io/ioutil"
 	"math"
 	"strings"
 
 	"github.com/go-gota/gota/dataframe"
+	"github.com/go-gota/gota/series"
 	// . "github.com/samber/mo"
 )
 
@@ -210,46 +212,94 @@ func alignedSeqsFromMatricies(scoringMatrix [][]int, directionMatrix [][]int, se
 	return reversedSeq1, reversedSeq2, alignmentScore1, alignmentScore2
 }
 
-func AlignementScore(seq1 []byte, seq2 []byte) int {
-	alignedLen := len(seq1)
-	if len(seq2) > alignedLen {
-		alignedLen = len(seq2)
+func AlignmentScore(seq1 []byte, seq2 []byte) int {
+	if len(seq1) != len(seq2) {
+		fmt.Printf("Sequences 1 and 2 are of different lengths\n")
+		fmt.Printf("Length 1: %d\n", len(seq1))
+		fmt.Printf("Length 2: %d\n", len(seq2))
+		fmt.Printf("Lengths must be equal, try forced compare where ends are padded with GAPs")
+		panic("Sequences must be of equal length")
 	}
-	alignementScore := 0
+	alignedLen := len(seq1)
+	alignmentScore := 0
 	sequentialGap := false
 	for i := 0; i < alignedLen; i++ {
 		if (seq1[i] == GAP || seq2[i] == GAP) && !sequentialGap {
-			alignementScore += -5
+			alignmentScore += -5
 			sequentialGap = true
 		} else if (seq1[i] == GAP || seq2[i] == GAP) && sequentialGap {
-			alignementScore += -1
+			alignmentScore += -1
 		} else if seq1[i] != seq2[i] {
-			alignementScore += -1
+			alignmentScore += -1
 			sequentialGap = false
 		} else {
-			alignementScore += 1
+			alignmentScore += 1
 			sequentialGap = false
 		}
 
 	}
-	return alignementScore
+	return alignmentScore
 }
 
-func readData() {
+func AlignmentScoreForced(seq1 []byte, seq2 []byte) int {
+	// warn that this function should not be used most of the time
+	paddingSeq := len(seq2) - len(seq1)
+	if paddingSeq == 0 {
+		return AlignmentScore(seq1, seq2)
+	} else if paddingSeq > 0 {
+		return AlignmentScore(append(seq1, make([]byte, paddingSeq)...), seq2)
+	} else {
+		return AlignmentScore(seq1, append(seq2, make([]byte, -paddingSeq)...))
+	}
+}
+
+func readData() dataframe.DataFrame {
 	content, _ := ioutil.ReadFile("./dataGen/covidReads.csv")
 	ioContent := strings.NewReader(string(content))
 
-	dataRaw := dataframe.ReadCSV(ioContent)
-	fmt.Println(dataRaw)
-	// Generate pairwise scores for alignement
-	for ii := 0; ii < dataRaw.Nrow(); ii++ {
-		fmt.Println((dataRaw.Elem(ii, 2)))
-		for jj := ii + 1; jj < dataRaw.Nrow(); jj++ {
-			_ = AlignementScore(
-				[]byte(dataRaw.Elem(ii, 2).String()),
-				[]byte(dataRaw.Elem(jj, 2).String()),
+	dataRaw := dataframe.ReadCSV(
+		ioContent,
+	)
+	return dataRaw
+}
+
+func generateHashLookup(rawSeqs dataframe.DataFrame) dataframe.DataFrame {
+	// Note hash length could be increased to reduce likelihood of collisions
+	// IMO n/2^64 is enough
+	// hasher := fnv.New64()
+	hashLambda := func(s series.Series) series.Series {
+		// Get the sequence
+		hasher := fnv.New64a()
+		str := []byte(s.Elem(2).String())
+		hasher.Write(str)
+		hashInt := hasher.Sum64()
+		hash := fmt.Sprintf("%016X", hashInt)
+
+		// new_s := s.Copy()
+		// new_s.Append(hash)
+		// return new_s
+		return series.New(hash, series.String, "BPSequenceHash")
+	}
+	ndf := dataframe.New(
+		rawSeqs.Col("BPSequence"),
+		rawSeqs.Rapply(hashLambda).Col("X0"),
+	)
+	ndf = ndf.Rename("BPSequenceHash", "X0")
+	return ndf
+}
+
+func pairwiseAlign(df dataframe.DataFrame) dataframe.DataFrame {
+	// Generate pairwise scores for alignment
+	sequences := df.Col("BPSequence")
+	for ii := 0; ii < df.Nrow(); ii++ {
+		seq1 := []byte(sequences.Elem(ii).String())
+		for jj := ii + 1; jj < df.Nrow(); jj++ {
+			seq2 := []byte(sequences.Elem(ii).String())
+			_ = AlignmentScoreForced(
+				seq1,
+				seq2,
 			)
 		}
 	}
-
+	return df
 }
