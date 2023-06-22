@@ -63,23 +63,23 @@ func GenNWMatrix(seq1 []byte, seq2 []byte) ([][]int, [][]int) {
 	gapPenalty := -2
 	// Initialize scoring matrix with null value
 	fmt.Println("Initializing scoring matrix")
-	scoringMatrix := make([][]int, len(seq1))
-	directionMatrix := make([][]int, len(seq1))
+	scoringMatrix := make([][]int, len(seq1)+1)
+	directionMatrix := make([][]int, len(seq1)+1)
 	for i := range scoringMatrix {
-		scoringMatrix[i] = make([]int, len(seq2))
-		directionMatrix[i] = make([]int, len(seq2))
+		scoringMatrix[i] = make([]int, len(seq2)+1)
+		directionMatrix[i] = make([]int, len(seq2)+1)
 	}
 	// Initialize scoring matrix with null values
-	for ii := 0; ii < len(seq1); ii++ {
-		for jj := 0; jj < len(seq2); jj++ {
+	for ii := 0; ii < len(seq1)+1; ii++ {
+		for jj := 0; jj < len(seq2)+1; jj++ {
 			scoringMatrix[ii][jj] = -1
 			directionMatrix[ii][jj] = 0
 		}
 	}
 
 	fmt.Println("Scoring...")
-	for ii := 0; ii < len(seq1); ii++ {
-		for jj := 0; jj < len(seq2); jj++ {
+	for ii := 0; ii < len(seq1)+1; ii++ {
+		for jj := 0; jj < len(seq2)+1; jj++ {
 			scoringMatrix[ii][jj] = 0
 			CDiag := math.MinInt
 			CWest := math.MinInt
@@ -96,7 +96,7 @@ func GenNWMatrix(seq1 []byte, seq2 []byte) ([][]int, [][]int) {
 			} else if jj == 0 {
 				CNorth = scoringMatrix[ii-1][jj] + gapPenalty
 			} else {
-				CDiag = scoringMatrix[ii-1][jj-1] + SubsCost(seq1[ii], seq2[jj])
+				CDiag = scoringMatrix[ii-1][jj-1] + SubsCost(seq1[ii-1], seq2[jj-1])
 				CWest = scoringMatrix[ii][jj-1] + gapPenalty
 				CNorth = scoringMatrix[ii-1][jj] + gapPenalty
 			}
@@ -119,26 +119,34 @@ func GenNWMatrix(seq1 []byte, seq2 []byte) ([][]int, [][]int) {
 
 func drawMatricies(scoringMatrix [][]int, directionMatrix [][]int, seq1 []byte, seq2 []byte) {
 	fmt.Println("Drawing Score Matrix")
-	fmt.Print("   ")
+	fmt.Print("       ")
 	for i := 0; i < len(seq2); i++ {
 		fmt.Printf("  %s", repr(seq2[i]))
 	}
 	fmt.Println("")
 	for i := 0; i < len(scoringMatrix); i++ {
-		fmt.Printf("%s ", repr(seq1[i]))
+		if i == 0 {
+			fmt.Printf("   ")
+		} else {
+			fmt.Printf("%s ", repr(seq1[i-1]))
+		}
 		for j := 0; j < len(scoringMatrix[i]); j++ {
 			fmt.Printf("\033[31;1;4m%4d\033[0m", scoringMatrix[i][j])
 		}
 		fmt.Println("")
 	}
 	fmt.Println("Drawing Direction Matrix")
-	fmt.Print("   ")
+	fmt.Print("      ")
 	for i := 0; i < len(seq2); i++ {
 		fmt.Printf("%s ", repr(seq2[i]))
 	}
 	fmt.Println("")
 	for i := 0; i < len(directionMatrix); i++ {
-		fmt.Printf("%s ", repr(seq1[i]))
+		if i == 0 {
+			fmt.Printf("   ")
+		} else {
+			fmt.Printf("%s ", repr(seq1[i-1]))
+		}
 		for j := 0; j < len(directionMatrix[i]); j++ {
 			if Direction(directionMatrix[i][j]) == Diagonal {
 				fmt.Printf("\033[31;1;4m %s \033[0m", "\\")
@@ -166,21 +174,21 @@ func alignedSeqsFromMatricies(scoringMatrix [][]int, directionMatrix [][]int, se
 	for i := 0; i < alignedLen; i++ {
 		reversedSeq1[i] = 0
 		reversedSeq2[i] = 0
-		alignmentScore1 += scoringMatrix[index1][index2]
-		alignmentScore2 += scoringMatrix[index1][index2]
-		if Direction(directionMatrix[index1][index2]) == Diagonal {
+		alignmentScore1 += scoringMatrix[index1+1][index2+1]
+		alignmentScore2 += scoringMatrix[index1+1][index2+1]
+		if Direction(directionMatrix[index1+1][index2+1]) == Diagonal {
 			// Implies alignment of sequences here
 			reversedSeq1 = append(reversedSeq1, seq1[index1])
 			reversedSeq2 = append(reversedSeq2, seq2[index2])
 			index1--
 			index2--
-		} else if Direction(directionMatrix[index1][index2]) == North {
+		} else if Direction(directionMatrix[index1+1][index2+1]) == North {
 			// Implies gap in the top sequence
 			fmt.Println("Gap in top sequence")
 			reversedSeq1 = append(reversedSeq1, GAP)
 			reversedSeq2 = append(reversedSeq2, seq2[index2])
 			index1--
-		} else if Direction(directionMatrix[index1][index2]) == West {
+		} else if Direction(directionMatrix[index1+1][index2+1]) == West {
 			// Implies gap in the left sequence
 			fmt.Println("Gap in left sequence")
 			reversedSeq1 = append(reversedSeq1, seq1[index1])
@@ -202,13 +210,32 @@ func alignedSeqsFromMatricies(scoringMatrix [][]int, directionMatrix [][]int, se
 	return reversedSeq1, reversedSeq2, alignmentScore1, alignmentScore2
 }
 
-func NWScore(seq1 []byte, seq2 []byte) int {
-	return 0
+func AlignementScore(seq1 []byte, seq2 []byte) int {
+	alignedLen := len(seq1)
+	if len(seq2) > alignedLen {
+		alignedLen = len(seq2)
+	}
+	alignementScore := 0
+	sequentialGap := false
+	for i := 0; i < alignedLen; i++ {
+		if (seq1[i] == GAP || seq2[i] == GAP) && !sequentialGap {
+			alignementScore += -5
+			sequentialGap = true
+		} else if (seq1[i] == GAP || seq2[i] == GAP) && sequentialGap {
+			alignementScore += -1
+		} else if seq1[i] != seq2[i] {
+			alignementScore += -1
+			sequentialGap = false
+		} else {
+			alignementScore += 1
+			sequentialGap = false
+		}
+
+	}
+	return alignementScore
 }
 
 func readData() {
-	// dataRaw, err := os.ReadFile("./dataGen/covidReads.seqs")
-	// check(err)
 	content, _ := ioutil.ReadFile("./dataGen/covidReads.csv")
 	ioContent := strings.NewReader(string(content))
 
@@ -218,7 +245,7 @@ func readData() {
 	for ii := 0; ii < dataRaw.Nrow(); ii++ {
 		fmt.Println((dataRaw.Elem(ii, 2)))
 		for jj := ii + 1; jj < dataRaw.Nrow(); jj++ {
-			_ = NWScore(
+			_ = AlignementScore(
 				[]byte(dataRaw.Elem(ii, 2).String()),
 				[]byte(dataRaw.Elem(jj, 2).String()),
 			)

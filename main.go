@@ -15,7 +15,7 @@ func main() {
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 	alignSeq1, alignSeq2, score1, score2 := alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 
-	fmt.Println(alignSeq1, alignSeq2, score1, score2)
+	fmt.Println(string(alignSeq1), string(alignSeq2), score1, score2)
 
 	fmt.Println("-------------------------")
 	fmt.Println("-------------------------")
@@ -28,7 +28,7 @@ func main() {
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 	alignSeq1, alignSeq2, score1, score2 = alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 
-	fmt.Println(alignSeq1, alignSeq2, score1, score2)
+	fmt.Println(string(alignSeq1), string(alignSeq2), score1, score2)
 
 	fmt.Println("-------------------------")
 	fmt.Println("-------------------------")
@@ -41,7 +41,7 @@ func main() {
 	drawMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 	alignSeq1, alignSeq2, score1, score2 = alignedSeqsFromMatricies(scoringMatrix, directionMatrix, sequence1, sequence2)
 
-	fmt.Println(alignSeq1, alignSeq2, score1, score2)
+	fmt.Println(string(alignSeq1), string(alignSeq2), score1, score2)
 	// fmt.Println(NWScore("banana", "the banna man"))
 	// generateData()
 	// readData()
