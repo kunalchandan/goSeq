@@ -34,7 +34,6 @@ func generateData(sourceFile string, outputFilePath string, nAligns int, seqLenM
 		randSeqLen := rand.Intn(seqLenMax-seqLenMin) + seqLenMin
 		startIndex := rand.Intn((len(data) - randSeqLen))
 		seqRead := data[startIndex : startIndex+randSeqLen]
-		// fmt.Println(string(seqRead))
 		seqReads = append(seqReads, seqRead)
 		seqReadStructs = append(seqReadStructs,
 			Seq{
