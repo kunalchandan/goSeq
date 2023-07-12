@@ -2,7 +2,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"os"
 
@@ -22,17 +21,13 @@ type Seq struct {
 	BPSequence string
 }
 
-func generateData() {
+func generateData(nAligns int, seqLenMax int, seqLenMin int) {
 	// Seed for reproducibility
 	rand.Seed(0)
 	data, err := os.ReadFile("./dataGen/covid.seq")
 	check(err)
 
-	// Create the reads
-	nAligns := 10
-	seqLenMax := 12
-	seqLenMin := 8
-	// maybe use a dataframe/like object and append the indicies and lengths as well
+	// maybe use a dataframe/like object and append the indices and lengths as well
 	seqReads := [][]byte{}
 	seqReadStructs := []Seq{}
 	for n := 0; n < nAligns; n++ {
@@ -52,7 +47,6 @@ func generateData() {
 
 	// Write as CSV with dataframes
 	df := dataframe.LoadStructs(seqReadStructs)
-	fmt.Println(df)
 	f, _ := os.Create("./dataGen/covidReads.csv")
 	df.WriteCSV(f)
 	// Write the reads to a file
