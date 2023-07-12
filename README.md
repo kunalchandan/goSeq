@@ -1,6 +1,7 @@
 # GoSeq
 Alignment for de-novo sequences.
 
+See more at my blog post [linked here.](https://chandan.one/posts/GoLang-Refresher/)
 
 # Running
 ```bash
