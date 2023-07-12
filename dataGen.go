@@ -21,10 +21,10 @@ type Seq struct {
 	BPSequence string
 }
 
-func generateData(nAligns int, seqLenMax int, seqLenMin int) {
+func generateData(sourceFile string, outputFilePath string, nAligns int, seqLenMax int, seqLenMin int) {
 	// Seed for reproducibility
 	rand.Seed(0)
-	data, err := os.ReadFile("./dataGen/covid.seq")
+	data, err := os.ReadFile(sourceFile)
 	check(err)
 
 	// maybe use a dataframe/like object and append the indices and lengths as well
@@ -46,11 +46,13 @@ func generateData(nAligns int, seqLenMax int, seqLenMin int) {
 	}
 
 	// Write as CSV with dataframes
+	// This CSV is the entire dataframe with the start index and length
 	df := dataframe.LoadStructs(seqReadStructs)
-	f, _ := os.Create("./dataGen/covidReads.csv")
+	f, _ := os.Create(outputFilePath + ".csv")
 	df.WriteCSV(f)
 	// Write the reads to a file
-	outputWrites, err := os.Create("./dataGen/covidReads.seqs")
+	// This file is the raw reads themselves as if you didn't know where the sequences actually came from
+	outputWrites, err := os.Create(outputFilePath + ".seqs")
 	check(err)
 	defer outputWrites.Close()
 	for n := 0; n < nAligns; n++ {
